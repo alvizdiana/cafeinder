@@ -1,0 +1,33 @@
+export type PriceLevel = 0 | 1 | 2 | 3 | 4;
+
+export interface CafeTag {
+  label: string;
+  icon: string;
+}
+
+export interface Cafe {
+  placeId: string;
+  name: string;
+  vicinity: string;
+  lat: number;
+  lng: number;
+  rating: number;
+  userRatingsTotal: number;
+  priceLevel: PriceLevel | null;
+  distance: number; // meters
+  photoReference?: string;
+  openNow?: boolean;
+  tags: CafeTag[];
+}
+
+export interface FilterState {
+  minRating: number;
+  maxDistance: number; // meters
+  maxPrice: PriceLevel | null;
+  activeTags: string[];
+}
+
+export interface NearbySearchResult {
+  cafes: Cafe[];
+  error?: string;
+}

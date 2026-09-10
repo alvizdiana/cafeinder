@@ -1,0 +1,116 @@
+"use client";
+
+import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+import { Cafe, FilterState } from "@/lib/types";
+import CafeList from "@/components/CafeList";
+
+const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
+
+const DEFAULT_FILTER: FilterState = {
+  minRating: 0,
+  maxDistance: 2000,
+  maxPrice: null,
+  activeTags: [],
+};
+
+export default function Home() {
+  const [cafes, setCafes] = useState<Cafe[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [userLat, setUserLat] = useState<number | null>(null);
+  const [userLng, setUserLng] = useState<number | null>(null);
+  const [filter, setFilter] = useState<FilterState>(DEFAULT_FILTER);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  const fetchCafes = useCallback(async (lat: number, lng: number, radius: number) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/places?lat=${lat}&lng=${lng}&radius=${radius}`);
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setCafes(data.cafes ?? []);
+    } catch (e) {
+      setError((e as Error).message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!navigator.geolocation) {
+      setError("Browser tidak mendukung geolocation.");
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      ({ coords }) => {
+        setUserLat(coords.latitude);
+        setUserLng(coords.longitude);
+        fetchCafes(coords.latitude, coords.longitude, DEFAULT_FILTER.maxDistance);
+      },
+      () => setError("Akses lokasi ditolak. Izinkan lokasi lalu refresh."),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const handleFilterChange = (newFilter: FilterState) => {
+    setFilter(newFilter);
+    if (userLat && userLng && newFilter.maxDistance !== filter.maxDistance) {
+      fetchCafes(userLat, userLng, newFilter.maxDistance);
+    }
+  };
+
+  const handleSelectCafe = (cafe: Cafe) => {
+    setSelectedId(cafe.placeId === selectedId ? null : cafe.placeId);
+  };
+
+  return (
+    <div className="flex flex-col h-dvh overflow-hidden bg-[#faf5ec]">
+      {/* Header */}
+      <header className="flex items-center gap-4 px-5 py-2.5 bg-[#3d1f00] text-[#faf5ec] shrink-0 z-10">
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">☕</span>
+          <span className="font-playfair text-xl font-semibold tracking-tight">CafeInder</span>
+        </div>
+        <div className="ml-auto text-xs text-[#e8dcc8]">
+          {userLat
+            ? `📍 Lokasi terdeteksi · ${cafes.length} cafe ditemukan`
+            : "Meminta akses lokasi…"}
+        </div>
+        {error && (
+          <div className="text-xs text-[#f9b88e] bg-white/10 px-2.5 py-1 rounded">
+            ⚠ {error}
+          </div>
+        )}
+      </header>
+
+      {/* Split view */}
+      <div className="flex flex-1 overflow-hidden">
+        {/* Map — kiri */}
+        <div className="flex-1 relative min-w-0">
+          <MapView
+            cafes={cafes}
+            userLat={userLat}
+            userLng={userLng}
+            selectedId={selectedId}
+            onSelectCafe={handleSelectCafe}
+          />
+        </div>
+
+        {/* List — kanan */}
+        <div className="w-[380px] shrink-0 flex flex-col border-l border-[#d9c9b0] bg-[#faf5ec] overflow-hidden">
+          <CafeList
+            cafes={cafes}
+            loading={loading}
+            filter={filter}
+            onFilterChange={handleFilterChange}
+            selectedId={selectedId}
+            onSelect={handleSelectCafe}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
