@@ -1,7 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
 import { Cafe } from "@/lib/types";
+
+const listeners = new Set<() => void>();
+const subscribe = (cb: () => void) => {
+  listeners.add(cb);
+  return () => listeners.delete(cb);
+};
 
 interface Props {
   cafes: Cafe[];
@@ -23,15 +29,27 @@ export default function MapView({ cafes, userLat, userLng, selectedId, onSelectC
   const mapInstance = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<Map<string, google.maps.Marker>>(new Map());
   const userMarkerRef = useRef<google.maps.Marker | null>(null);
-  const [mapReady, setMapReady] = useState(false);
+  const mapReady = useSyncExternalStore(
+    subscribe,
+    () => !!window.google?.maps,  // snapshot klien
+    () => false                    // snapshot server
+  );
 
   useEffect(() => {
+    if (window.google?.maps) return;
     const key = process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY;
-    if (!key || document.getElementById("gmaps-script")) {
-      if (window.google?.maps) setMapReady(true);
-      return;
+    if (!key) return;
+
+    const handleReady = () => listeners.forEach((l) => l());
+
+    const existing = document.getElementById("gmaps-script");
+    if (existing) {
+      // script sedang dimuat oleh instance lain, tunggu sampai selesai
+      existing.addEventListener("load", handleReady);
+      return () => existing.removeEventListener("load", handleReady);
     }
-    window.initCafeMap = () => setMapReady(true);
+
+    window.initCafeMap = () => listeners.forEach((l) => l());
     const script = document.createElement("script");
     script.id = "gmaps-script";
     script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&callback=initCafeMap&language=id`;
