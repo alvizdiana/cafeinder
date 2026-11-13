@@ -1,18 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Cafe, FilterState, DEFAULT_FILTER } from "@/lib/types";
+import { applyFilter } from "@/lib/applyFilter";
 import dynamic from "next/dynamic";
-import { Cafe, FilterState } from "@/lib/types";
 import CafeList from "@/components/CafeList";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
-
-const DEFAULT_FILTER: FilterState = {
-  minRating: 0,
-  maxDistance: 2000,
-  maxPrice: null,
-  activeTags: [],
-};
 
 export default function Home() {
   const [cafes, setCafes] = useState<Cafe[]>([]);
@@ -22,6 +16,11 @@ export default function Home() {
   const [userLng, setUserLng] = useState<number | null>(null);
   const [filter, setFilter] = useState<FilterState>(DEFAULT_FILTER);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const filteredCafes = useMemo(() => applyFilter(cafes, filter), [cafes, filter]);
+
+  const activeSelectedId = filteredCafes.some((c) => c.placeId === selectedId)
+    ? selectedId
+    : null;
 
   const fetchCafes = useCallback(async (lat: number, lng: number, radius: number) => {
     setLoading(true);
@@ -62,9 +61,9 @@ export default function Home() {
     }
   };
 
-  const handleSelectCafe = (cafe: Cafe) => {
-    setSelectedId(cafe.placeId === selectedId ? null : cafe.placeId);
-  };
+  const handleSelectCafe = useCallback((cafe: Cafe) => {
+    setSelectedId((prev) => (prev === cafe.placeId ? null : cafe.placeId));
+  }, []);
 
   return (
     <div className="flex flex-col h-dvh overflow-hidden bg-[#faf5ec]">
@@ -76,7 +75,7 @@ export default function Home() {
         </div>
         <div className="ml-auto text-xs text-[#e8dcc8]">
           {userLat
-            ? `📍 Lokasi terdeteksi · ${cafes.length} cafe ditemukan`
+            ? `📍 Lokasi terdeteksi · ${filteredCafes.length} cafe ditemukan`
             : "Meminta akses lokasi…"}
         </div>
         {error && (
@@ -91,10 +90,10 @@ export default function Home() {
         {/* Map — kiri */}
         <div className="flex-1 relative min-w-0">
           <MapView
-            cafes={cafes}
+            cafes={filteredCafes}
             userLat={userLat}
             userLng={userLng}
-            selectedId={selectedId}
+            selectedId={activeSelectedId}
             onSelectCafe={handleSelectCafe}
           />
         </div>
@@ -102,11 +101,12 @@ export default function Home() {
         {/* List — kanan */}
         <div className="w-[380px] shrink-0 flex flex-col border-l border-[#d9c9b0] bg-[#faf5ec] overflow-hidden">
           <CafeList
-            cafes={cafes}
+            cafes={filteredCafes}
+            allCafes={cafes}
             loading={loading}
             filter={filter}
             onFilterChange={handleFilterChange}
-            selectedId={selectedId}
+            selectedId={activeSelectedId}
             onSelect={handleSelectCafe}
           />
         </div>

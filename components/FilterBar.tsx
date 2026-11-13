@@ -1,6 +1,6 @@
 "use client";
 
-import { Cafe, FilterState } from "@/lib/types";
+import { Cafe, FilterState, DEFAULT_FILTER } from "@/lib/types";
 import { getAllTags } from "@/lib/tagParser";
 
 interface Props {
@@ -54,7 +54,10 @@ function FilterRow({ label, children }: { label: string; children: React.ReactNo
 
 export default function FilterBar({ filter, onChange, cafes }: Props) {
   const allTags = getAllTags();
-  const hasPriceData = (cafes ?? []).some((c) => c.priceLevel !== null);
+  const availablePrices = [1, 2, 3].filter((p) =>
+    (cafes ?? []).some((c) => c.priceLevel === p)
+  );
+  const hasPriceData = availablePrices.length > 0;
 
   const toggleTag = (label: string) => {
     const active = filter.activeTags.includes(label)
@@ -63,8 +66,32 @@ export default function FilterBar({ filter, onChange, cafes }: Props) {
     onChange({ ...filter, activeTags: active });
   };
 
+  const isDirty =
+    filter.minRating !== DEFAULT_FILTER.minRating ||
+    filter.maxDistance !== DEFAULT_FILTER.maxDistance ||
+    filter.maxPrice !== DEFAULT_FILTER.maxPrice ||
+    filter.activeTags.length > 0;
+
+  const resetFilter = () => onChange({ ...DEFAULT_FILTER, activeTags: [] });
+
   return (
     <div className="flex flex-col gap-3 p-3 border-b border-[#d9c9b0] bg-[#f2e9d8]">
+      <div className="flex items-center justify-between">
+        <span className="text-xs font-medium text-[#7a5c40]">Filter</span>
+        <button
+          type="button"
+          onClick={resetFilter}
+          disabled={!isDirty}
+          className={`px-2.5 py-1 rounded-full border text-xs transition-all font-[DM_Sans]
+            ${isDirty
+              ? "bg-[#faf5ec] border-[#c07a3a] text-[#6b3f1f] cursor-pointer hover:bg-[#3d1f00] hover:border-[#3d1f00] hover:text-[#faf5ec]"
+              : "bg-transparent border-[#e6dac6] text-[#c4b39b] cursor-not-allowed"
+            }`}
+        >
+          ↺ Reset filter
+        </button>
+      </div>
+
       {/* Rating */}
       <FilterRow label="Rating">
         {RATING_OPTIONS.map((r) => (
@@ -89,7 +116,7 @@ export default function FilterBar({ filter, onChange, cafes }: Props) {
           <Chip active={filter.maxPrice === null} onClick={() => onChange({ ...filter, maxPrice: null })}>
             Semua
           </Chip>
-          {[1, 2, 3].map((p) => (
+          {availablePrices.map((p) => (
             <Chip
               key={p}
               active={filter.maxPrice === p}

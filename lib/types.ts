@@ -27,6 +27,13 @@ export interface FilterState {
   activeTags: string[];
 }
 
+export const DEFAULT_FILTER: FilterState = {
+  minRating: 0,
+  maxDistance: 2000,
+  maxPrice: null,
+  activeTags: [],
+};
+
 export interface NearbySearchResult {
   cafes: Cafe[];
   error?: string;
