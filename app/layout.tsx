@@ -2,9 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  icons: "/cafeinder.png",
-  title: "Cafeinder — Temukan cafe di sekitarmu",
-  description: "Cari cafe terdekat dengan filter rating, harga, dan fasilitas seperti WiFi, musholla, cocok WFA, dan lainnya.",
+  title: "CafeInder — Find Your Peace",
+  description: "Find the nearest café using filters for ratings, price, and amenities such as Wi-Fi, a prayer room, WFA-friendly, and more.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
