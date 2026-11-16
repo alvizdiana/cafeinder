@@ -5,6 +5,7 @@ import { Cafe, FilterState, DEFAULT_FILTER } from "@/lib/types";
 import { applyFilter } from "@/lib/applyFilter";
 import dynamic from "next/dynamic";
 import CafeList from "@/components/CafeList";
+import Image from "next/image";
 
 const MapView = dynamic(() => import("@/components/MapView"), { ssr: false });
 
@@ -70,7 +71,9 @@ export default function Home() {
       {/* Header */}
       <header className="flex items-center gap-4 px-5 py-2.5 bg-[#3d1f00] text-[#faf5ec] shrink-0 z-10">
         <div className="flex items-center gap-2">
-          <span className="text-2xl">☕</span>
+          <span>
+            <Image src="/light-icon.png" alt="cafeInder icon" width={26} height={26}/>
+          </span>
           <span className="font-playfair text-xl font-semibold tracking-tight">CafeInder</span>
         </div>
         <div className="hidden md:block ml-auto text-xs text-[#e8dcc8]">
