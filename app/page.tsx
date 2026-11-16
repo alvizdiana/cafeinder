@@ -73,7 +73,7 @@ export default function Home() {
           <span className="text-2xl">☕</span>
           <span className="font-playfair text-xl font-semibold tracking-tight">CafeInder</span>
         </div>
-        <div className="ml-auto text-xs text-[#e8dcc8]">
+        <div className="hidden md:block ml-auto text-xs text-[#e8dcc8]">
           {userLat
             ? `📍 Lokasi terdeteksi · ${filteredCafes.length} cafe ditemukan`
             : "Meminta akses lokasi…"}
@@ -86,9 +86,9 @@ export default function Home() {
       </header>
 
       {/* Split view */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Map — kiri */}
-        <div className="flex-1 relative min-w-0">
+      <div className="flex flex-col md:flex-row flex-1 overflow-hidden">
+        {/* Map: atas di HP, kiri di desktop */}
+        <div className="relative min-w-0 h-[38%] shrink-0 md:h-auto md:flex-1">
           <MapView
             cafes={filteredCafes}
             userLat={userLat}
@@ -98,8 +98,8 @@ export default function Home() {
           />
         </div>
 
-        {/* List — kanan */}
-        <div className="w-[380px] shrink-0 flex flex-col border-l border-[#d9c9b0] bg-[#faf5ec] overflow-hidden">
+        {/* List: bawah di HP, kanan di desktop */}
+        <div className="flex flex-1 min-h-0 flex-col overflow-hidden border-t border-[#d9c9b0] bg-[#faf5ec] md:flex-none md:w-[380px] md:shrink-0 md:border-t-0 md:border-l">
           <CafeList
             cafes={filteredCafes}
             allCafes={cafes}
