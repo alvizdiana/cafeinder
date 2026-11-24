@@ -2,6 +2,7 @@
 
 import { Cafe, FilterState, DEFAULT_FILTER } from "@/lib/types";
 import { useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import CafeCard from "./CafeCard";
 import FilterBar from "./FilterBar";
 
@@ -84,21 +85,26 @@ export default function CafeList({ cafes, allCafes, loading, filter, onFilterCha
 
         {/* No location yet */}
         {!loading && allCafes.length === 0 && (
-          <div className="flex flex-col items-center justify-center py-16 gap-3 text-[#7a5c40] text-sm text-center">
+          <motion.div 
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col items-center justify-center py-16 gap-3 text-[#7a5c40] text-sm text-center">
             <span className="text-4xl">📍</span>
             <p>Izinkan akses lokasi untuk mencari cafe terdekat.</p>
-          </div>
+          </motion.div>
         )}
 
         {/* Cafe list */}
-        {!loading && allCafes.map((cafe) => (
-          <CafeCard
-            key={cafe.placeId}
-            cafe={cafe}
-            isSelected={cafe.placeId === selectedId}
-            onClick={() => onSelect(cafe)}
-          />
-        ))}
+        <AnimatePresence initial={false}>
+          {!loading && cafes.map((cafe) => (
+            <CafeCard
+              key={cafe.placeId}
+              cafe={cafe}
+              isSelected={cafe.placeId === selectedId}
+              onClick={() => onSelect(cafe)}
+            />
+          ))}
+        </AnimatePresence>
 
         {/* Result count */}
         {!loading && cafes.length > 0 && (

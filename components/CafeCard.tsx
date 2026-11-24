@@ -3,17 +3,23 @@
 import { Cafe } from "@/lib/types";
 import TagBadge from "./TagBadge";
 import { formatDistance, priceSymbol } from "@/lib/utils";
+import { useState } from "react";
+import GalleryModal from "./GalleryModal";
+import { motion, AnimatePresence } from "motion/react";
 
 interface Props {
   cafe: Cafe;
   isSelected: boolean;
   onClick: () => void;
+  index?: number; //untuk stagger
 }
 
-export default function CafeCard({ cafe, isSelected, onClick }: Props) {
+export default function CafeCard({ cafe, isSelected, onClick, index }: Props) {
   const photoUrl = cafe.photoReference
     ? `/api/photo?ref=${cafe.photoReference}&maxwidth=400`
     : null;
+
+  const [showGallery, setShowGallery] = useState(false);
 
   const openMaps = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -25,13 +31,19 @@ export default function CafeCard({ cafe, isSelected, onClick }: Props) {
   };
 
   return (
-    <div
+    <motion.div
       onClick={onClick}
       role="button"
       tabIndex={0}
       onKeyDown={(e) => e.key === "Enter" && onClick()}
-      className={`bg-white rounded-xl border mb-2 overflow-hidden cursor-pointer transition-all duration-200
-        hover:-translate-y-0.5 hover:shadow-md
+      layout="position"
+      initial={{ opacity: 0, y: 16, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96, transition: { duration: 0.15 } }}
+      transition={{ type: "spring", stiffness: 300, damping: 26, delay: Math.min(index, 8) * 0.04 }}
+      whileHover={{ y: -3, boxShadow: "0 8px 20px rgba(61,31,0,0.12)" }}
+      whileTap={{ scale: 0.985 }}
+      className={`bg-white rounded-xl border mb-2 overflow-hidden cursor-pointer hover:shadow-md
         ${isSelected
           ? "border-[#6b3f1f] shadow-[0_0_0_2px_rgba(107,63,31,0.15)]"
           : "border-[#d9c9b0] hover:border-[#c07a3a]"
@@ -55,10 +67,26 @@ export default function CafeCard({ cafe, isSelected, onClick }: Props) {
 
       {/* Content */}
       <div className="p-3">
-        {/* Name */}
-        <h3 className="font-playfair text-[15px] font-medium text-[#3d1f00] leading-snug mb-1">
-          {cafe.name}
-        </h3>
+        {/* Name + Gallery */}
+        <div className="flex items-start justify-between gap-2 mb-1">
+          <h3 className="font-playfair text-[15px] font-medium text-[#3d1f00] leading-snug">
+            {cafe.name}
+          </h3>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.93 }}
+            transition={{ type: "spring", stiffness: 400, damping: 17 }}
+            onClick={(e) => {
+              e.stopPropagation(); // jangan memicu onClick kartu
+              setShowGallery(true);
+            }}
+            aria-label={`Lihat galeri ${cafe.name}`}
+            className="shrink-0 inline-flex items-center gap-1 px-2 py-1 text-[11px] font-medium text-[#6b3f1f] bg-[#f2e9d8] hover:bg-[#e8d9bf] rounded-md transition-colors"
+          >
+            <span>🖼️</span>
+            <span>Gallery</span>
+          </motion.button>
+        </div>
 
         {/* Meta row */}
         <div className="flex items-center flex-wrap gap-2 mb-1">
@@ -102,24 +130,46 @@ export default function CafeCard({ cafe, isSelected, onClick }: Props) {
         <p className="text-[11px] text-[#a0856a] mb-2 truncate">{cafe.vicinity}</p>
 
         {/* Tags */}
-        {cafe.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mb-2.5">
-            {cafe.tags.map((tag) => (
-              <TagBadge key={tag.label} tag={tag} />
-            ))}
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {isSelected && cafe.tags.length > 0 && (
+            <motion.div
+            key="tags"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: "easeInOut" }}
+            className="overflow-hidden"
+          >
+            <div className="flex flex-wrap gap-1 mb-2.5">
+              {cafe.tags.map((tag) => (
+                <TagBadge key={tag.label} tag={tag} />
+              ))}
+            </div>
+          </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* CTA */}
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.93 }}
+          transition={{ type: "spring", stiffness: 400, damping: 17 }}
           onClick={openMaps}
           aria-label="Buka rute di Google Maps"
           className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#3d1f00] hover:bg-[#6b3f1f] text-[#faf5ec] text-xs font-medium rounded-md transition-colors duration-150"
         >
           <span>🗺️</span>
           <span>Lihat Rute</span>
-        </button>
+        </motion.button>
       </div>
-    </div>
+
+      {showGallery && (
+        <AnimatePresence>
+          {showGallery && (
+            <GalleryModal placeId={cafe.placeId} cafeName={cafe.name} onClose={() => setShowGallery(false)} />
+          )}
+        </AnimatePresence>
+      )}
+    </motion.div>
   );
 }

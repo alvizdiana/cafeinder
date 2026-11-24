@@ -10,7 +10,7 @@ const TAG_RULES: TagRule[] = [
   {
     label: "WiFi Cepat",
     icon: "📶",
-    keywords: ["wifi", "wi-fi", "internet cepat", "koneksi bagus", "sinyal kuat", "ngebut"],
+    keywords: ["wifi", "wi-fi", "internet cepat", "koneksi bagus", "sinyal kuat"],
   },
   {
     label: "Musholla Bersih",

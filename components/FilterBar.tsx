@@ -30,7 +30,7 @@ function Chip({
   return (
     <button
       onClick={onClick}
-      className={`px-2.5 py-1 rounded-full border text-xs cursor-pointer transition-all whitespace-nowrap font-[DM_Sans]
+      className={`px-2.5 py-1 rounded-full border text-xs cursor-pointer whitespace-nowrap font-[DM_Sans] transition-transform duration-150 hover:scale-105 active:scale-95
         ${active
           ? "bg-[#3d1f00] border-[#3d1f00] text-[#faf5ec]"
           : "bg-[#faf5ec] border-[#d9c9b0] text-[#7a5c40] hover:border-[#c07a3a] hover:text-[#6b3f1f]"
