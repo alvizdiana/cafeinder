@@ -54,7 +54,7 @@ No need to search for the cafe all over again!
 
 ### App Demo
 
-Here's a quick look at how Cafe Finder works:
+Here's a quick look at how CafeInder works:
 
 ![CafeInder Demo](/public/cafeinder.gif)
 
