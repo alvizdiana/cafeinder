@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "motion/react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Props {
   placeId: string;
@@ -73,16 +74,13 @@ export default function GalleryModal({ placeId, cafeName, onClose }: Props) {
         >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-[#d9c9b0]">
-            <h2 className="font-playfair text-lg text-[#3d1f00] truncate">
-                Galeri · {cafeName}
-            </h2>
-            <button
-                onClick={onClose}
-                aria-label="Tutup galeri"
-                className="text-[#6b3f1f] hover:text-[#3d1f00] text-2xl leading-none px-2"
-            >
-                ×
-            </button>
+                <h2 className="font-playfair text-lg text-[#3d1f00] truncate">
+                    Galeri · {cafeName}
+                </h2>
+                <button onClick={onClose} aria-label="Tutup galeri"
+                    className="p-1.5 rounded-full text-[#6b3f1f] hover:bg-[#f2e9d8] transition-colors">
+                    <X size={20} />
+                </button>
             </div>
 
             {/* Body */}
@@ -139,20 +137,18 @@ export default function GalleryModal({ placeId, cafeName, onClose }: Props) {
                 />
                     {photos.length > 1 && (
                         <>
-                        <button
-                            aria-label="Foto sebelumnya"
-                            onClick={(e) => { e.stopPropagation(); setActive((active - 1 + photos.length) % photos.length); }}
-                            className="absolute left-4 text-white text-4xl px-3"
-                        >
-                            ‹
-                        </button>
-                        <button
-                            aria-label="Foto berikutnya"
-                            onClick={(e) => { e.stopPropagation(); setActive((active + 1) % photos.length); }}
-                            className="absolute right-4 text-white text-4xl px-3"
-                        >
-                            ›
-                        </button>
+                            <button
+                                aria-label="Foto sebelumnya"
+                                onClick={(e) => { e.stopPropagation(); setActive((active - 1 + photos.length) % photos.length); }}
+                                className="absolute left-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
+                                <ChevronLeft size={28} />
+                            </button>
+                            <button
+                                aria-label="Foto berikutnya"
+                                onClick={(e) => { e.stopPropagation(); setActive((active + 1) % photos.length); }}
+                                className="absolute right-4 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors">
+                                <ChevronRight size={28} />
+                            </button>
                         </>
                     )}
                     <span className="absolute bottom-4 text-white/80 text-xs">

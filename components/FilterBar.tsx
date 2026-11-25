@@ -2,6 +2,8 @@
 
 import { Cafe, FilterState, DEFAULT_FILTER } from "@/lib/types";
 import { getAllTags } from "@/lib/tagParser";
+import { TAG_ICONS, FALLBACK_ICON } from "./tagIcons";
+import { RotateCcw, Star } from "lucide-react";
 
 interface Props {
   filter: FilterState;
@@ -54,10 +56,6 @@ function FilterRow({ label, children }: { label: string; children: React.ReactNo
 
 export default function FilterBar({ filter, onChange, cafes }: Props) {
   const allTags = getAllTags();
-  const availablePrices = [1, 2, 3].filter((p) =>
-    (cafes ?? []).some((c) => c.priceLevel === p)
-  );
-  const hasPriceData = availablePrices.length > 0;
 
   const toggleTag = (label: string) => {
     const active = filter.activeTags.includes(label)
@@ -88,7 +86,9 @@ export default function FilterBar({ filter, onChange, cafes }: Props) {
               : "bg-transparent border-[#e6dac6] text-[#c4b39b] cursor-not-allowed"
             }`}
         >
-          ↺ Reset filter
+          <span className="inline-flex items-center gap-1">
+            <RotateCcw size={14} /> Reset filter
+          </span>
         </button>
       </div>
 
@@ -96,7 +96,11 @@ export default function FilterBar({ filter, onChange, cafes }: Props) {
       <FilterRow label="Rating">
         {RATING_OPTIONS.map((r) => (
           <Chip key={r} active={filter.minRating === r} onClick={() => onChange({ ...filter, minRating: r })}>
-            {r === 0 ? "Semua" : `${r}★`}
+            {r === 0 ? "Semua" : (
+              <span className="inline-flex items-center gap-1">
+                {r} <Star size={11} className="fill-current" />
+              </span>
+            )}
           </Chip>
         ))}
       </FilterRow>
@@ -110,31 +114,23 @@ export default function FilterBar({ filter, onChange, cafes }: Props) {
         ))}
       </FilterRow>
 
-      {/* Price — hanya tampil kalau ada data */}
-      {hasPriceData && (
-        <FilterRow label="Harga">
-          <Chip active={filter.maxPrice === null} onClick={() => onChange({ ...filter, maxPrice: null })}>
-            Semua
-          </Chip>
-          {availablePrices.map((p) => (
-            <Chip
-              key={p}
-              active={filter.maxPrice === p}
-              onClick={() => onChange({ ...filter, maxPrice: p as 1 | 2 | 3 })}
-            >
-              {"Rp ".repeat(p).trim()}
-            </Chip>
-          ))}
-        </FilterRow>
-      )}
-
       {/* Tags */}
       <FilterRow label="Fasilitas">
-        {allTags.map((tag) => (
-          <Chip key={tag.label} active={filter.activeTags.includes(tag.label)} onClick={() => toggleTag(tag.label)}>
-            {tag.icon} {tag.label}
-          </Chip>
-        ))}
+        {allTags.map((tag) => {
+          const Icon = TAG_ICONS[tag.icon] ?? FALLBACK_ICON;
+          return (
+            <Chip
+              key={tag.label}
+              active={filter.activeTags.includes(tag.label)}
+              onClick={() => toggleTag(tag.label)}
+            >
+              <span className="flex items-center gap-1">
+                <Icon size={13} strokeWidth={2} />
+                {tag.label}
+              </span>
+            </Chip>
+          );
+        })}
       </FilterRow>
     </div>
   );

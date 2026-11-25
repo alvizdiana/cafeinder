@@ -1,8 +1,15 @@
+import type { LucideIcon } from "lucide-react";
+
 export type PriceLevel = 0 | 1 | 2 | 3 | 4;
+
+
+export type TagIconName =
+  | "wifi" | "prayer" | "laptop" | "baby" | "leaf"
+  | "expand" | "sun" | "paw" | "camera" | "plug";
 
 export interface CafeTag {
   label: string;
-  icon: string;
+  icon: TagIconName; // string biasa, aman lewat JSON
 }
 
 export interface Cafe {
@@ -14,6 +21,8 @@ export interface Cafe {
   rating: number;
   userRatingsTotal: number;
   priceLevel: PriceLevel | null;
+  priceMin: number | null; // dalam rupiah
+  priceMax: number | null;
   distance: number; // meters
   photoReference?: string;
   openNow?: boolean;

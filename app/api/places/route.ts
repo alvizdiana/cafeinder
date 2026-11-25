@@ -3,6 +3,20 @@ import { parseTagsFromReviews } from "@/lib/tagParser";
 import { haversineDistance } from "@/lib/utils";
 import { Cafe } from "@/lib/types";
 
+interface GoogleMoney {
+  currencyCode?: string;
+  units?: string; // int64 dikirim Google sebagai string
+  nanos?: number;
+}
+
+interface GooglePriceRange {
+  startPrice?: GoogleMoney;
+  endPrice?: GoogleMoney;
+}
+
+const toNum = (m?: GoogleMoney): number | null =>
+  m?.units ? Number(m.units) : null;
+
 const PLACES_NEW_BASE = "https://places.googleapis.com/v1";
 
 async function getReviews(placeId: string, apiKey: string): Promise<string[]> {
@@ -16,8 +30,10 @@ async function getReviews(placeId: string, apiKey: string): Promise<string[]> {
       next: { revalidate: 3600 },
     });
     const data = await res.json();
-    const reviews: { text: { text: string } }[] = data.reviews ?? [];
-    return reviews.map((r) => r.text.text);
+    const reviews: { text?: { text: string } }[] = data.reviews ?? [];
+    return reviews
+      .map((r) => r.text?.text)
+      .filter((t): t is string => Boolean(t));
   } catch {
     return [];
   }
@@ -51,6 +67,7 @@ export async function GET(req: NextRequest) {
         "places.rating",
         "places.userRatingCount",
         "places.priceLevel",
+        "places.priceRange",
         "places.photos",
         "places.currentOpeningHours.openNow",
       ].join(","),
@@ -103,9 +120,11 @@ export async function GET(req: NextRequest) {
       };
       const priceLevel = priceLevelMap[p.priceLevel as string] ?? null;
 
+      const priceRange = p.priceRange as GooglePriceRange | undefined;
+
       const reviews = await getReviews(`places/${placeId}`, apiKey);
       const tags = parseTagsFromReviews(reviews);
-
+      
       return {
         placeId,
         name: displayName?.text ?? "Tanpa nama",
@@ -115,6 +134,8 @@ export async function GET(req: NextRequest) {
         rating: (p.rating as number) ?? 0,
         userRatingsTotal: (p.userRatingCount as number) ?? 0,
         priceLevel,
+        priceMin: toNum(priceRange?.startPrice),
+        priceMax: toNum(priceRange?.endPrice),
         distance: haversineDistance(parseFloat(lat), parseFloat(lng), placeLat, placeLng),
         photoReference: photoRef,
         openNow: hours?.openNow,

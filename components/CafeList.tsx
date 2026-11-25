@@ -5,6 +5,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import CafeCard from "./CafeCard";
 import FilterBar from "./FilterBar";
+import { MapPinOff, SlidersHorizontal, SearchX } from "lucide-react";
 
 interface Props {
   cafes: Cafe[];
@@ -22,7 +23,6 @@ export default function CafeList({ cafes, allCafes, loading, filter, onFilterCha
   const activeCount =
     (filter.minRating !== DEFAULT_FILTER.minRating ? 1 : 0) +
     (filter.maxDistance !== DEFAULT_FILTER.maxDistance ? 1 : 0) +
-    (filter.maxPrice !== DEFAULT_FILTER.maxPrice ? 1 : 0) +
     filter.activeTags.length;
 
   return (
@@ -38,11 +38,7 @@ export default function CafeList({ cafes, allCafes, loading, filter, onFilterCha
           aria-label="Buka atau tutup filter"
           className="relative flex items-center gap-2 px-3 py-1.5 rounded-full border border-[#d9c9b0] bg-[#faf5ec] text-[#6b3f1f] text-xs"
         >
-          <span className="flex flex-col gap-[3px]">
-            <span className="block w-4 h-[2px] bg-current" />
-            <span className="block w-4 h-[2px] bg-current" />
-            <span className="block w-4 h-[2px] bg-current" />
-          </span>
+          <SlidersHorizontal size={14} />
           Filter
           {activeCount > 0 && (
             <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#3d1f00] text-[#faf5ec] text-[10px] flex items-center justify-center">
@@ -72,7 +68,7 @@ export default function CafeList({ cafes, allCafes, loading, filter, onFilterCha
         {/* No results after filter */}
         {!loading && cafes.length === 0 && allCafes.length > 0 && (
           <div className="flex flex-col items-center justify-center py-16 gap-3 text-[#7a5c40] text-sm text-center">
-            <span className="text-4xl">☕</span>
+            <SearchX size={40} strokeWidth={1.5} className="text-[#c07a3a]" />
             <p>Tidak ada cafe yang cocok dengan filter.</p>
             <button
               onClick={() => onFilterChange({ minRating: 0, maxDistance: 2000, maxPrice: null, activeTags: [] })}
@@ -89,7 +85,7 @@ export default function CafeList({ cafes, allCafes, loading, filter, onFilterCha
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             className="flex flex-col items-center justify-center py-16 gap-3 text-[#7a5c40] text-sm text-center">
-            <span className="text-4xl">📍</span>
+            <MapPinOff size={40} strokeWidth={1.5} className="text-[#c07a3a]" />
             <p>Izinkan akses lokasi untuk mencari cafe terdekat.</p>
           </motion.div>
         )}

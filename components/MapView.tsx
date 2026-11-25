@@ -46,15 +46,25 @@ export default function MapView({ cafes, userLat, userLng, selectedId, onSelectC
   const esc = (s: string) =>
     s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 
-  const markerIcon = (selected: boolean): google.maps.Symbol => ({
-    path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
-    fillColor: selected ? "#3d1f00" : "#C07A3A",
-    fillOpacity: 1,
-    strokeColor: "#ffffff",
-    strokeWeight: 1.5,
-    scale: selected ? 2 : 1.5,
-    anchor: new window.google.maps.Point(12, 22),
-  });
+  const markerIcon = (selected: boolean): google.maps.Icon => {
+    const size = selected ? 46 : 36;
+    const fill = selected ? "#3d1f00" : "#C07A3A";
+    const svg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24">
+        <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"
+              fill="${fill}" stroke="#ffffff" stroke-width="1.2"/>
+        <g transform="translate(7.2 4.2) scale(0.4)" fill="none" stroke="#ffffff"
+          stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 2v2"/><path d="M14 2v2"/><path d="M6 2v2"/>
+          <path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/>
+        </g>
+      </svg>`;
+    return {
+      url: "data:image/svg+xml;charset=UTF-8," + encodeURIComponent(svg),
+      scaledSize: new window.google.maps.Size(size, size),
+      anchor: new window.google.maps.Point(size / 2, (size * 12) / 14),
+    };
+  };
 
   useEffect(() => {
     if (window.google?.maps) return;
@@ -192,12 +202,18 @@ export default function MapView({ cafes, userLat, userLng, selectedId, onSelectC
 
     const marker = markersRef.current.get(selectedId);
     const cafe = cafesRef.current.find((c) => c.placeId === selectedId);
+    const starSvg = `<svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b" stroke="#f59e0b"
+                      stroke-width="2" stroke-linejoin="round" style="vertical-align:-1px">
+                      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                    </svg>`;
     if (!marker || !cafe) return;
 
     infoWindow.setContent(`
       <div style="font-family:sans-serif;padding:4px;min-width:160px">
         <strong style="color:#3d1f00;font-size:14px">${esc(cafe.name)}</strong>
-        <div style="color:#888;font-size:12px;margin-top:2px">${cafe.rating}★ · ${esc(cafe.vicinity)}</div>
+        <div style="color:#888;font-size:12px;margin-top:2px">
+          ${starSvg} ${cafe.rating} · ${esc(cafe.vicinity)}
+        </div>
       </div>
     `);
     infoWindow.open({ map, anchor: marker });
@@ -210,27 +226,6 @@ export default function MapView({ cafes, userLat, userLng, selectedId, onSelectC
 
     return () => clearTimeout(t);
   }, [selectedId, mapReady]);
-
-  useEffect(() => {
-    if (!selectedId || !mapInstance.current) return;
-    const cafe = cafes.find((c) => c.placeId === selectedId);
-    if (cafe) { mapInstance.current.panTo({ lat: cafe.lat, lng: cafe.lng }); mapInstance.current.setZoom(17); }
-  }, [selectedId, cafes]);
-
-  useEffect(() => {
-    if (!mapInstance.current) return;
-    markersRef.current.forEach((marker, id) => {
-      marker.setIcon({
-        path: "M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z",
-        fillColor: id === selectedId ? "#3d1f00" : "#C07A3A",
-        fillOpacity: 1,
-        strokeColor: "#ffffff",
-        strokeWeight: 1.5,
-        scale: id === selectedId ? 2 : 1.5,
-        anchor: new window.google.maps.Point(12, 22),
-      });
-    });
-  }, [selectedId]);
 
   return (
     <div className="relative w-full h-full">

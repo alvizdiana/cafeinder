@@ -25,7 +25,28 @@ export function formatPrice(level: number | null): string {
   return ["Gratis", "Murah", "Sedang", "Mahal", "Mewah"][level] ?? "–";
 }
 
-export function priceSymbol(level: number | null): string {
-  if (level === null) return "–";
-  return ["–", "Rp", "Rp Rp", "Rp Rp Rp", "Rp Rp Rp Rp"][level] ?? "–";
+const idr = (n: number) => n.toLocaleString("id-ID");
+
+// Estimasi kasar kalau Google tidak punya rentang. Sesuaikan dengan harga lokal.
+export const LEVEL_RANGE: Record<number, string> = {
+  1: "< Rp 25.000",
+  2: "Rp 26.000–50.000",
+  3: "Rp 51.000–75.000",
+  4: "> Rp 75.000",
+};
+
+export function priceLevelLabel(level: number): string {
+  return LEVEL_RANGE[level] ?? "–";
+}
+
+export function priceSymbol(
+  level: number | null,
+  min?: number | null,
+  max?: number | null
+): string {
+  if (min != null && max != null) return `Rp ${idr(min)}–${idr(max)}`;
+  if (min != null) return `Rp ${idr(min)}+`;
+  if (max != null) return `< Rp ${idr(max)}`;
+  if (level != null && LEVEL_RANGE[level]) return `~${LEVEL_RANGE[level]}`;
+  return "–";
 }
