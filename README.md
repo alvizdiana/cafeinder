@@ -1,4 +1,4 @@
-### CafeInder — Find Your Peace
+# CafeInder — Find Your Peace
 
 Stop spending **30–60 minutes** searching for the perfect cafe to work from. Find your next WFC spot in just a few clicks!
 
@@ -21,13 +21,13 @@ It was frustrating and inefficient.
 That's why I built CafeInder — an application designed to make finding the perfect cafe for working easier, faster, and more convenient.
 
 ## Features
-# Automatic Nearby Cafe Detection
+### Automatic Nearby Cafe Detection
 
 No more manually searching for cafes!
 
 CafeInder uses **Google Maps and Google Places API to automatically detect cafes around your current location using your device's GPS**.
 
-# Smart Filtering
+### Smart Filtering
 
 Find cafes that match your working preferences with various filtering options:
 
@@ -36,7 +36,7 @@ Find cafes that match your working preferences with various filtering options:
 * **Facilities**: Filter based on available facilities, such as free Wi-Fi and power outlets.
 * **Work-friendly suitability**: Discover cafes suitable for WFC (Work From Cafe), WFH (Work From Home), or WFA (Work From Anywhere).
 
-# Cafe Photo Gallery
+### Cafe Photo Gallery
 
 *Want to see what a cafe looks like before visiting?*
 
@@ -44,7 +44,7 @@ Each cafe card comes with a photo gallery featuring up to **10 location photos**
 
 Get a better idea of the cafe's interior, seating, atmosphere, and overall environment before deciding where to work.
 
-# Direct Google Maps Navigation
+### Direct Google Maps Navigation
 
 After found your ideal workspace,
 
@@ -52,13 +52,13 @@ Simply click the **"View Route"** button on a cafe card, and you'll be **redirec
 
 No need to search for the cafe all over again!
 
-# App Demo
+### App Demo
 
 Here's a quick look at how Cafe Finder works:
 
-[CafeInder Demo](/public/cafeinder.gif)
+![CafeInder Demo](/public/cafeinder.gif)
 
-# Try It Yourself!
+### Try It Yourself!
 
 *Ready to find your next favorite workspace?*
 
